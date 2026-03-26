@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>View Donations - Local Food Donation System</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    #filter-container {
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+    #filter-container label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #6a2c70;
+      margin-right: 6px;
+      user-select: none;
+    }
+    #placeFilter {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 2px solid #d8bfd8;
+      font-size: 0.9rem;
+      outline-offset: 2px;
+      color: #6a2c70;
+      background: #fff0f5;
+      min-width: 140px;
+    }
+    #placeFilter:focus {
+      border-color: #8a2be2;
+      background: #faf0ff;
+    }
+    nav {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    nav a {
+      color: #6a2c70;
+      font-weight: 600;
+      text-decoration: underline;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" role="main" aria-label="View Food Donations">
+    <h1>Available Food Donations</h1>
+    <nav>
+      <a href="index.html" aria-label="Go back to donation form">Back to Donation Form</a>
+    </nav>
+    <section id="filter-container" aria-label="Filter donations by pickup address">
+      <label for="placeFilter">Filter by Pickup Address:</label>
+      <select id="placeFilter" aria-controls="donations-list" aria-label="Pickup address filter">
+        <option value="all">All Places</option>
+      </select>
+    </section>
+    <section aria-live="polite" aria-relevant="additions" id="donations-list" tabindex="0">
+      <!-- Donations will be displayed here -->
+    </section>
+  </div>
+
+  <script>
+    (function(){
+      const STORAGE_KEY = 'localFoodDonations';
+      const donationsList = document.getElementById('donations-list');
+      const placeFilter = document.getElementById('placeFilter');
+
+      // Load donations from localStorage or empty array
+      let donations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+      // Populate filter dropdown with unique pickup addresses
+      function populateFilterOptions() {
+        const places = donations
+          .map(d => d.pickupAddress.trim())
+          .filter((place, idx, arr) => place && arr.indexOf(place) === idx)
+          .sort((a,b) => a.localeCompare(b));
+
+        placeFilter.innerHTML = '<option value="all">All Places</option>';
+        places.forEach(place => {
+          const option = document.createElement('option');
+          option.value = place;
+          option.textContent = place;
+          placeFilter.appendChild(option);
+        });
+      }
+
+      // Create donation DOM element (read-only, no remove button)
+      function createDonationElement(donation) {
+        const div = document.createElement('div');
+        div.className = 'donation-item';
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('aria-label', `Donation from ${donation.donorName}, food: ${donation.foodType}, quantity: ${donation.quantity}`);
+
+        const header = document.createElement('div');
+        header.className = 'donation-header';
+
+        const donorSpan = document.createElement('span');
+        donorSpan.textContent = donation.donorName;
+
+        header.appendChild(donorSpan);
+
+        const contactInfo = document.createElement('div');
+        contactInfo.className = 'donation-contact';
+        contactInfo.textContent = `Contact: ${donation.contactInfo}`;
+
+        const foodInfo = document.createElement('div');
+        foodInfo.className = 'donation-info';
+        foodInfo.innerHTML = `<strong>Food:</strong> ${donation.foodType}`;
+
+        const quantityInfo = document.createElement('div');
+        quantityInfo.className = 'donation-info';
+        quantityInfo.innerHTML = `<strong>Quantity:</strong> ${donation.quantity}`;
+
+        const addressInfo = document.createElement('div');
+        addressInfo.className = 'donation-info';
+        addressInfo.innerHTML = `<strong>Pickup Address:</strong> ${donation.pickupAddress}`;
+
+        const notesInfo = document.createElement('div');
+        notesInfo.className = 'donation-info';
+        if (donation.notes.trim() !== '') {
+          notesInfo.innerHTML = `<strong>Notes:</strong> ${donation.notes}`;
+        }
+
+        div.appendChild(header);
+        div.appendChild(contactInfo);
+        div.appendChild(foodInfo);
+        div.appendChild(quantityInfo);
+        div.appendChild(addressInfo);
+        if (donation.notes.trim() !== '') {
+          div.appendChild(notesInfo);
+        }
+
+        return div;
+      }
+
+      // Render donations optionally filtered by place
+      function renderDonations(filterPlace = 'all') {
+        donationsList.innerHTML = '';
+        let filteredDonations = donations;
+        if (filterPlace !== 'all') {
+          filteredDonations = donations.filter(d => d.pickupAddress.trim() === filterPlace);
+        }
+        if(filteredDonations.length === 0) {
+          const emptyMsg = document.createElement('p');
+          emptyMsg.textContent = "No donations found for the selected place.";
+          emptyMsg.style.fontStyle = 'italic';
+          emptyMsg.style.color = '#558b2f';
+          donationsList.appendChild(emptyMsg);
+          donationsList.setAttribute('aria-label', 'No donations found');
+          return;
+        }
+        filteredDonations.forEach(donation => {
+          const donationEl = createDonationElement(donation);
+          donationsList.appendChild(donationEl);
+        });
+        donationsList.setAttribute('aria-label', `${filteredDonations.length} food donations listed`);
+      }
+
+      // Filter change event
+      placeFilter.addEventListener('change', (e) => {
+        renderDonations(e.target.value);
+      });
+
+      populateFilterOptions();
+      renderDonations();
+
+    })();
+  </script>
+</body>
+</html>

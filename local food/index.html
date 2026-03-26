@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Local Food Donation System</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app" role="main" aria-label="Local Food Donation System">
+    <h1>Local Food Donation</h1>
+    <nav style="text-align:center; margin-bottom: 12px;">
+      <a href="donations.html" style="color:#6a2c70; font-weight:600; text-decoration:underline;">View All Donations</a>
+    </nav>
+    <form id="donation-form" aria-label="Food donation form">
+      <label for="donorName">Donor Name <sup aria-label="required">*</sup></label>
+      <input type="text" id="donorName" name="donorName" required aria-required="true" autocomplete="name" placeholder="Your full name" />
+
+      <label for="contactInfo">Contact Info <sup aria-label="required">*</sup></label>
+      <input type="text" id="contactInfo" name="contactInfo" required aria-required="true" placeholder="Phone or Email" autocomplete="tel email" />
+
+      <label for="foodType">Food Description <sup aria-label="required">*</sup></label>
+      <textarea id="foodType" name="foodType" rows="2" required aria-required="true" placeholder="Type of food you want to donate"></textarea>
+
+      <label for="quantity">Quantity <sup aria-label="required">*</sup></label>
+      <input type="number" id="quantity" name="quantity" min="1" required aria-required="true" placeholder="Number of items or approximate amount" />
+
+      <label for="pickupAddress">Pickup Address <sup aria-label="required">*</sup></label>
+      <textarea id="pickupAddress" name="pickupAddress" rows="2" required aria-required="true" placeholder="Address where the food can be collected"></textarea>
+
+      <label for="donationDate">Donation Date <sup aria-label="required">*</sup></label>
+      <input type="date" id="donationDate" name="donationDate" required aria-required="true" />
+
+      <label for="donationTime">Donation Time <sup aria-label="required">*</sup></label>
+      <input type="time" id="donationTime" name="donationTime" required aria-required="true" />
+
+      <label for="notes">Additional Notes</label>
+      <textarea id="notes" name="notes" rows="2" placeholder="Any other information (optional)"></textarea>
+
+      <button type="submit" aria-label="Submit donation form">Donate Food</button>
+    </form>
+
+    <section aria-live="polite" aria-relevant="additions" id="donations-list" tabindex="0">
+      <!-- Donations will be displayed here -->
+    </section>
+
+    <footer style="text-align:center; margin-top: 20px;">
+      <p>We are open for donations from 7:00 AM to 11:59 PM.</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Food Share - Browse Available Donations</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .page-title {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .navigation-bar {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-section {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            border: 1px solid #dee2e6;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .location-selector {
+            padding: 10px 15px;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+            color: #495057;
+            min-width: 200px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .location-selector:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .donations-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .donation-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .donation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .donation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .donor-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .donor-name::before {
+            content: '👤';
+            font-size: 1.1rem;
+        }
+
+        .contact-details {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .info-row {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-icon {
+            font-size: 1rem;
+            width: 20px;
+            flex-shrink: 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 80px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-message {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .donations-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Community Food Share</h1>
+        <p class="subtitle">Browse available food donations in your area</p>
+        
+        <div class="navigation-bar">
+            <a href="index.html" class="nav-link">← Add New Donation</a>
+        </div>
+
+        <div class="filter-section">
+            <label class="filter-label" for="locationFilter">Filter by Location:</label>
+            <select id="locationFilter" class="location-selector">
+                <option value="all">Show All Locations</option>
+            </select>
+        </div>
+
+        <div id="donationsDisplay" class="donations-container">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        class FoodDonationViewer {
+            constructor() {
+                this.storageKey = 'localFoodDonations';
+                this.displayArea = document.getElementById('donationsDisplay');
+                this.locationFilter = document.getElementById('locationFilter');
+                this.allDonations = [];
+                
+                this.initialize();
+            }
+
+            initialize() {
+                this.loadDonationData();
+                this.setupLocationFilter();
+                this.bindEventListeners();
+                this.displayDonations();
+            }
+
+            loadDonationData() {
+                try {
+                    const storedData = localStorage.getItem(this.storageKey);
+                    this.allDonations = storedData ? JSON.parse(storedData) : [];
+                } catch (error) {
+                    console.error('Error loading donation data:', error);
+                    this.allDonations = [];
+                }
+            }
+
+            setupLocationFilter() {
+                const uniqueLocations = [...new Set(
+                    this.allDonations
+                        .map(donation => donation.pickupAddress?.trim())
+                        .filter(address => address && address.length > 0)
+                )].sort();
+
+                this.locationFilter.innerHTML = '<option value="all">Show All Locations</option>';
+                
+                uniqueLocations.forEach(location => {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = location;
+                    optionElement.textContent = location;
+                    this.locationFilter.appendChild(optionElement);
+                });
+            }
+
+            bindEventListeners() {
+                this.locationFilter.addEventListener('change', () => {
+                    this.displayDonations();
+                });
+            }
+
+            createDonationCard(donationData) {
+                const card = document.createElement('div');
+                card.className = 'donation-card';
+                card.setAttribute('tabindex', '0');
+                
+                const donorSection = document.createElement('div');
+                donorSection.className = 'donor-name';
+                donorSection.textContent = donationData.donorName || 'Anonymous Donor';
+
+                const contactSection = document.createElement('div');
+                contactSection.className = 'contact-details';
+                contactSection.innerHTML = 📞 Contact: ${donationData.contactInfo || 'Not provided'};
+
+                const detailsContainer = document.createElement('div');
+
+                const foodDetails = this.createInfoRow('🍽', 'Food Type:', donationData.foodType || 'Not specified');
+                const quantityDetails = this.createInfoRow('📦', 'Quantity:', donationData.quantity || 'Not specified');
+                const locationDetails = this.createInfoRow('📍', 'Pickup:', donationData.pickupAddress || 'Not specified');
+
+                detailsContainer.appendChild(foodDetails);
+                detailsContainer.appendChild(quantityDetails);
+                detailsContainer.appendChild(locationDetails);
+
+                if (donationData.notes && donationData.notes.trim()) {
+                    const notesDetails = this.createInfoRow('📝', 'Notes:', donationData.notes.trim());
+                    detailsContainer.appendChild(notesDetails);
+                }
+
+                card.appendChild(donorSection);
+                card.appendChild(contactSection);
+                card.appendChild(detailsContainer);
+
+                return card;
+            }
+
+            createInfoRow(icon, label, value) {
+                const row = document.createElement('div');
+                row.className = 'info-row';
+
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'info-icon';
+                iconSpan.textContent = icon;
+
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'info-label';
+                labelSpan.textContent = label;
+
+                const valueSpan = document.createElement('span');
+                valueSpan.className = 'info-value';
+                valueSpan.textContent = value;
+
+                row.appendChild(iconSpan);
+                row.appendChild(labelSpan);
+                row.appendChild(valueSpan);
+
+                return row;
+            }
+
+            displayDonations() {
+                const selectedLocation = this.locationFilter.value;
+                let filteredDonations = this.allDonations;
+
+                if (selectedLocation !== 'all') {
+                    filteredDonations = this.allDonations.filter(
+                        donation => donation.pickupAddress?.trim() === selectedLocation
+                    );
+                }
+
+                this.displayArea.innerHTML = '';
+
+                if (filteredDonations.length === 0) {
+                    this.showEmptyState();
+                    return;
+                }
+
+                filteredDonations.forEach(donation => {
+                    const card = this.createDonationCard(donation);
+                    this.displayArea.appendChild(card);
+                });
+            }
+
+            showEmptyState() {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'empty-state';
+                emptyDiv.style.gridColumn = '1 / -1';
+                
+                emptyDiv.innerHTML = `
+                    <div class="empty-state-icon">🍽</div>
+                    <div class="empty-message">No food donations found for the selected location.</div>
+                `;
+                
+                this.displayArea.appendChild(emptyDiv);
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new FoodDonationViewer();
+        });
+    </script>
+</body>
+</html>
